@@ -15,7 +15,7 @@ varying vec3 vWorldPosition;
 varying vec3 vNormalDirection;
 varying float vEdgeMask;
 
-const int ITER_GEOMETRY = 3;
+const int ITER_GEOMETRY = 2;
 const float SEA_HEIGHT = 0.6;
 const float SEA_CHOPPY = 4.0;
 const float SEA_SPEED = 0.8;
@@ -125,7 +125,7 @@ varying vec3 vNormalDirection;
 varying float vEdgeMask;
 
 const float PI = 3.141592;
-const int ITER_FRAGMENT = 5;
+const int ITER_FRAGMENT = 4;
 const float SEA_HEIGHT = 0.6;
 const float SEA_CHOPPY = 4.0;
 const float SEA_SPEED = 0.8;

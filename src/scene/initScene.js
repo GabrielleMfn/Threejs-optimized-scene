@@ -9,7 +9,7 @@ const FOG_COLOR = 0xcde3d9;
 export function initScene(container) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(SKY_COLOR);
-  scene.fog = new THREE.FogExp2(FOG_COLOR, 0.0082);
+  scene.fog = new THREE.FogExp2(FOG_COLOR, 0.0062);
 
   const camera = new THREE.PerspectiveCamera(
     47,
@@ -50,9 +50,9 @@ export function initScene(container) {
     0.4,
     0.85
   );
-  bloomPass.threshold = 0.72;
-  bloomPass.strength = 0.045;
-  bloomPass.radius = 0.22;
+  bloomPass.threshold = 0.9;
+  bloomPass.strength = 0.012;
+  bloomPass.radius = 0.1;
   composer.addPass(bloomPass);
 
   return {
