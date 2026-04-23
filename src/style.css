@@ -1,0 +1,28 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  background:
+    radial-gradient(circle at 18% 22%, rgba(255, 176, 104, 0.25), transparent 40%),
+    radial-gradient(circle at 78% 18%, rgba(176, 96, 158, 0.28), transparent 42%),
+    linear-gradient(180deg, #2d1f3e 0%, #1b1f3a 35%, #12162a 100%);
+  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+}
+
+canvas {
+  display: block;
+}
