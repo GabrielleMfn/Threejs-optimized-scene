@@ -2,6 +2,7 @@
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshSurfaceSampler } from 'three/examples/jsm/math/MeshSurfaceSampler.js';
 import { VEGETATION_CONFIG } from './sceneConfig.js';
+import { CAMP_GRASS_CLEAR_ZONE } from './campProps.js';
 import grassColorUrl from '../../Texture_prof/Herbe/color.webp';
 import grassNormalUrl from '../../Texture_prof/Herbe/normal.webp';
 import grassRmaoUrl from '../../Texture_prof/Herbe/rmao.webp';
@@ -465,6 +466,16 @@ function isInWaterZone(x, z, riverSamples, pondCenter, pondRadius) {
   return riverDistance < VEGETATION_CONFIG.waterExclusion.riverWidth;
 }
 
+function isInCampClearZone(x, z) {
+  if (!CAMP_GRASS_CLEAR_ZONE) {
+    return false;
+  }
+
+  const dx = x - CAMP_GRASS_CLEAR_ZONE.x;
+  const dz = z - CAMP_GRASS_CLEAR_ZONE.z;
+  return dx * dx + dz * dz < CAMP_GRASS_CLEAR_ZONE.radius * CAMP_GRASS_CLEAR_ZONE.radius;
+}
+
 function createScatteredGroundCover(scene, getTerrainHeight, riverCurve, pondCenter, pondRadius, riverSamples, terrainMesh) {
   const grassConfig = VEGETATION_CONFIG.grass;
   const grassCount = Math.floor(grassConfig.riverBankCount * 0.7) + Math.floor(grassConfig.meadowCount * 0.72);
@@ -557,6 +568,11 @@ function createScatteredGroundCover(scene, getTerrainHeight, riverCurve, pondCen
       targetPosition: sampledPosition,
       targetNormal: sampledNormal,
     })) {
+      i -= 1;
+      continue;
+    }
+
+    if (isInCampClearZone(sampledPosition.x, sampledPosition.z)) {
       i -= 1;
       continue;
     }
