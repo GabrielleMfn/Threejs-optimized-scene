@@ -476,10 +476,26 @@ function isInCampClearZone(x, z) {
   return dx * dx + dz * dz < CAMP_GRASS_CLEAR_ZONE.radius * CAMP_GRASS_CLEAR_ZONE.radius;
 }
 
-function createScatteredGroundCover(scene, getTerrainHeight, riverCurve, pondCenter, pondRadius, riverSamples, terrainMesh) {
+function createScatteredGroundCover(
+  scene,
+  getTerrainHeight,
+  riverCurve,
+  pondCenter,
+  pondRadius,
+  riverSamples,
+  terrainMesh,
+  options = {}
+) {
   const grassConfig = VEGETATION_CONFIG.grass;
-  const grassCount = Math.floor(grassConfig.riverBankCount * 0.7) + Math.floor(grassConfig.meadowCount * 0.72);
-  const bushCount = Math.max(120, Math.floor(grassConfig.riverBankCount * 0.12));
+  const densityScale = Math.max(0.35, Math.min(1, options.grassDensityScale || 1));
+  const farLodBoost = Math.max(1, options.grassFarLodBoost || 1);
+  const grassCount = Math.max(
+    900,
+    Math.floor(
+      (Math.floor(grassConfig.riverBankCount * 0.7) + Math.floor(grassConfig.meadowCount * 0.72)) * densityScale
+    )
+  );
+  const bushCount = Math.max(80, Math.floor(grassConfig.riverBankCount * 0.12 * densityScale));
   const terrainSampler = getTerrainSurfaceSampler(terrainMesh);
   const sampledPosition = new THREE.Vector3();
   const sampledNormal = new THREE.Vector3();
@@ -677,7 +693,7 @@ function createScatteredGroundCover(scene, getTerrainHeight, riverCurve, pondCen
   const midDistanceSq = grassConfig.lodMidDistance * grassConfig.lodMidDistance;
   const farDistanceSq = grassConfig.lodFarDistance * grassConfig.lodFarDistance;
   const midStride = Math.max(1, grassConfig.lodMidStride || 3);
-  const farStride = Math.max(midStride + 1, grassConfig.lodFarStride || 8);
+  const farStride = Math.max(midStride + 1, Math.floor((grassConfig.lodFarStride || 8) * farLodBoost));
   const updateInterval = Math.max(0.15, grassConfig.lodUpdateInterval || 0.35);
   let lastUpdateTime = -1000;
 
@@ -1048,7 +1064,16 @@ function buildVegetationVariants(meshMap) {
   };
 }
 
-function placeVegetationInstances(scene, getTerrainHeight, riverCurve, pondCenter, pondRadius, variants, terrainMesh) {
+function placeVegetationInstances(
+  scene,
+  getTerrainHeight,
+  riverCurve,
+  pondCenter,
+  pondRadius,
+  variants,
+  terrainMesh,
+  options = {}
+) {
   const riverSamples = createRiverSamples(riverCurve, 110);
 
   createTrees(scene, variants.trees, getTerrainHeight, riverCurve, pondCenter, pondRadius, riverSamples, terrainMesh);
@@ -1060,7 +1085,8 @@ function placeVegetationInstances(scene, getTerrainHeight, riverCurve, pondCente
     pondCenter,
     pondRadius,
     riverSamples,
-    terrainMesh
+    terrainMesh,
+    options
   );
 
   return {
@@ -1079,7 +1105,8 @@ export function createVegetation(
   pondCenter,
   pondRadius,
   forestModelUrl,
-  terrainMesh
+  terrainMesh,
+  options = {}
 ) {
   const loader = new GLTFLoader();
 
@@ -1116,7 +1143,8 @@ export function createVegetation(
           pondCenter,
           pondRadius,
           variants,
-          terrainMesh
+          terrainMesh,
+          options
         );
         resolve(vegetationController);
       },
@@ -1132,7 +1160,8 @@ export function createVegetation(
             trees: createFallbackVariants('trees'),
             flowers: createFallbackVariants('flowers'),
           },
-          terrainMesh
+          terrainMesh,
+          options
         );
 
         resolve(vegetationController);

@@ -12,6 +12,53 @@ import { createCinematicCamera } from './scene/cinematicCamera.js';
 import { createDeer } from './scene/deer.js';
 import { createCampProps } from './scene/campProps.js';
 import { assetUrl } from './utils/assetUrl.js';
+import { getPerformanceProfile } from './utils/performanceProfile.js';
+
+function createLoadingOverlay() {
+  const overlay = document.createElement('div');
+  overlay.id = 'loading-overlay';
+  overlay.style.position = 'fixed';
+  overlay.style.inset = '0';
+  overlay.style.zIndex = '2000';
+  overlay.style.display = 'flex';
+  overlay.style.alignItems = 'center';
+  overlay.style.justifyContent = 'center';
+  overlay.style.background = 'radial-gradient(circle at 50% 40%, rgba(35, 22, 66, 0.9), rgba(15, 10, 33, 0.95))';
+
+  const box = document.createElement('div');
+  box.style.minWidth = '240px';
+  box.style.maxWidth = '82vw';
+  box.style.padding = '14px 16px';
+  box.style.borderRadius = '10px';
+  box.style.border = '1px solid rgba(190, 167, 255, 0.45)';
+  box.style.background = 'rgba(10, 8, 20, 0.62)';
+  box.style.color = '#f1ebff';
+  box.style.fontFamily = 'ui-monospace, SFMono-Regular, Menlo, monospace';
+  box.style.fontSize = '13px';
+  box.style.textAlign = 'center';
+  box.style.backdropFilter = 'blur(5px)';
+
+  const title = document.createElement('div');
+  title.textContent = 'Loading forest assets...';
+  title.style.marginBottom = '8px';
+
+  const status = document.createElement('div');
+  status.textContent = 'Starting';
+  status.style.opacity = '0.9';
+
+  box.append(title, status);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  return {
+    setStatus(text) {
+      status.textContent = text;
+    },
+    done() {
+      overlay.remove();
+    },
+  };
+}
 
 function createFpsMonitor() {
   const el = document.createElement('div');
@@ -205,12 +252,16 @@ function createTerrainCoordinateMonitor(camera, domElement, terrainMesh) {
 
 async function initForestScene() {
   const app = document.querySelector('#app');
+  const loading = createLoadingOverlay();
+  const perfProfile = getPerformanceProfile();
+  loading.setStatus('Initializing renderer');
   const { scene, camera, renderer, clock, composer } = initScene(app);
   const fpsMonitor = createFpsMonitor();
   const audioToggle = createAudioToggle();
 
   createLighting(scene, renderer);
 
+  loading.setStatus('Building terrain and water');
   const terrain = createTerrain(scene, renderer);
   // const terrainCoordinateMonitor = createTerrainCoordinateMonitor(
   //   camera,
@@ -237,6 +288,7 @@ async function initForestScene() {
   );
   const leaves = createFallingLeaves(scene, getTerrainHeight);
 
+  loading.setStatus('Placing vegetation');
   const vegetation = await createVegetation(
     scene,
     getTerrainHeight,
@@ -244,16 +296,31 @@ async function initForestScene() {
     water.pondCenter,
     water.pondRadius,
     forestModel,
-    terrain.terrain
+    terrain.terrain,
+    {
+      grassDensityScale: perfProfile.grassDensityScale,
+      grassFarLodBoost: perfProfile.grassFarLodBoost,
+    }
   );
 
+  loading.setStatus('Loading deer');
   const deer = await createDeer(
     scene,
     getTerrainHeight,
     water.riverCurve,
-    water.pondCenter
+    water.pondCenter,
+    {
+      preferLightweightDeer: perfProfile.preferLightweightDeer,
+    }
   );
-  await createCampProps(scene, getTerrainHeight);
+
+  loading.setStatus('Loading camp props');
+  await createCampProps(scene, getTerrainHeight, {
+    preferLightweightProps: perfProfile.preferLightweightProps,
+  });
+
+  loading.setStatus('Ready');
+  loading.done();
 
   const onResize = () => {
     resizeRenderer(camera, renderer, composer);
@@ -283,7 +350,7 @@ async function initForestScene() {
       vegetation.update(camera.position, elapsedTime);
     }
     if (deer && deer.update) {
-      deer.update(deltaTime);
+      deer.update(camera, deltaTime);
     }
     fpsMonitor.update(nowMs);
 
@@ -295,5 +362,9 @@ async function initForestScene() {
 }
 
 initForestScene().catch((error) => {
+  const overlay = document.getElementById('loading-overlay');
+  if (overlay) {
+    overlay.remove();
+  }
   console.error('Failed to initialize forest scene:', error);
 });
