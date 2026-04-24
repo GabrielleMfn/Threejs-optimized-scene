@@ -11,6 +11,7 @@ import { createFallingLeaves } from './scene/leaves.js';
 import { createCinematicCamera } from './scene/cinematicCamera.js';
 import { createDeer } from './scene/deer.js';
 import { createCampProps } from './scene/campProps.js';
+import { assetUrl } from './utils/assetUrl.js';
 
 function createFpsMonitor() {
   const el = document.createElement('div');
@@ -89,7 +90,7 @@ function createAudioToggle() {
   icon.style.pointerEvents = 'none';
   button.appendChild(icon);
 
-  const audio = new Audio('/audio/Forest_ambience.ogg');
+  const audio = new Audio(assetUrl('/audio/Forest_ambience.ogg'));
   audio.loop = true;
   audio.preload = 'auto';
   audio.volume = 0.45;
@@ -97,7 +98,9 @@ function createAudioToggle() {
   let isPlaying = false;
 
   function syncState() {
-    icon.src = isPlaying ? '/audio/volume-up-32.svg' : '/audio/muet-32.svg';
+    icon.src = isPlaying
+      ? assetUrl('/audio/volume-up-32.svg')
+      : assetUrl('/audio/muet-32.svg');
     button.title = isPlaying ? 'Mute ambience' : 'Play ambience';
     button.setAttribute('aria-pressed', String(isPlaying));
   }

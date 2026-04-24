@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { assetUrl } from '../utils/assetUrl.js';
 
 const TARGET_DEER_POSITION = new THREE.Vector3(-44.70, 3.25, 28.42);
 const TARGET_DEER_HEIGHT = 3.8;
@@ -63,7 +64,7 @@ export function createDeer(scene, getTerrainHeight, riverCurve, pondCenter) {
 
   return new Promise((resolve) => {
     loader.load(
-      '/cerf/23870b8f869b49b8ad9b09a020bedd30_Textured.gltf',
+      assetUrl('/cerf/23870b8f869b49b8ad9b09a020bedd30_Textured.gltf'),
       (gltf) => {
         const deerRoot = new THREE.Group();
         const deerHeading = new THREE.Group();
