@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { assetUrl } from '../utils/assetUrl.js';
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0);
 const TENT_TARGET = {
@@ -106,11 +107,11 @@ export async function createCampProps(scene, getTerrainHeight) {
   const loader = new GLTFLoader();
 
   const [tentModel, bonfireModel] = await Promise.all([
-    loadProp(loader, '/tent_xyz.glb').catch((error) => {
+    loadProp(loader, assetUrl('/tent_xyz.glb')).catch((error) => {
       console.warn('Tent model failed to load, using fallback tent', error);
       return createFallbackTent();
     }),
-    loadProp(loader, '/bonfire_and_pot.glb').catch((error) => {
+    loadProp(loader, assetUrl('/bonfire_and_pot.glb')).catch((error) => {
       console.warn('Bonfire model failed to load, using fallback bonfire', error);
       return createFallbackBonfire();
     }),
