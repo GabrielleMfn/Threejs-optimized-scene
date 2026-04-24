@@ -76,12 +76,44 @@ function loadProp(loader, url) {
   });
 }
 
+function createFallbackTent() {
+  const group = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.ConeGeometry(1.8, 3.4, 6),
+    new THREE.MeshBasicMaterial({ color: 0xbfa67b })
+  );
+  body.rotation.z = Math.PI * 0.5;
+  group.add(body);
+  return group;
+}
+
+function createFallbackBonfire() {
+  const group = new THREE.Group();
+  const base = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.8, 1.0, 0.5, 10),
+    new THREE.MeshBasicMaterial({ color: 0x6f4a2f })
+  );
+  const flame = new THREE.Mesh(
+    new THREE.ConeGeometry(0.7, 1.8, 8),
+    new THREE.MeshBasicMaterial({ color: 0xff9933 })
+  );
+  flame.position.y = 1.0;
+  group.add(base, flame);
+  return group;
+}
+
 export async function createCampProps(scene, getTerrainHeight) {
   const loader = new GLTFLoader();
 
   const [tentModel, bonfireModel] = await Promise.all([
-    loadProp(loader, '/tent_xyz.glb'),
-    loadProp(loader, '/bonfire_and_pot.glb'),
+    loadProp(loader, '/tent_xyz.glb').catch((error) => {
+      console.warn('Tent model failed to load, using fallback tent', error);
+      return createFallbackTent();
+    }),
+    loadProp(loader, '/bonfire_and_pot.glb').catch((error) => {
+      console.warn('Bonfire model failed to load, using fallback bonfire', error);
+      return createFallbackBonfire();
+    }),
   ]);
 
   const tentRoot = new THREE.Group();
