@@ -103,7 +103,7 @@ function createFallbackBonfire() {
   return group;
 }
 
-export async function createCampProps(scene, getTerrainHeight) {
+export async function createCampProps(scene, getTerrainHeight, options = {}) {
   const loader = new GLTFLoader();
 
   const [tentModel, bonfireModel] = await Promise.all([

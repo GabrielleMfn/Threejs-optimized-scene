@@ -28,8 +28,8 @@ export const VEGETATION_CONFIG = {
     pondRingMax: 8.6,
   },
   grass: {
-    riverBankCount: 2200,
-    meadowCount: 4800,
+    riverBankCount: 1800,
+    meadowCount: 3600,
     riverOffsetMin: 4.2,
     riverOffsetMax: 11.2,
     pondRingMin: 2.2,
@@ -37,9 +37,9 @@ export const VEGETATION_CONFIG = {
     meadowRadius: 88,
     lodNearDistance: 24,
     lodMidDistance: 44,
-    lodFarDistance: 66,
+    lodFarDistance: 58,
     lodMidStride: 4,
-    lodFarStride: 12,
+    lodFarStride: 16,
     lodUpdateInterval: 0.3,
   },
   waterExclusion: {
